@@ -1,0 +1,3 @@
+[submodule "zig-uefi"]
+	path = zig-uefi
+	url = https://github.com/nrdmn/zig-uefi.git
