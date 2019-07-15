@@ -56,10 +56,10 @@ const World = struct {
     }
 };
 
-export fn EfiMain(handle: uefi.EfiHandle, system_table: *uefi.EfiSystemTable) noreturn {
-    _ = system_table.con_out().?.reset(false);
-    const on = [_]uefi.Char16{ '#', 0 };
-    const off = [_]uefi.Char16{ ' ', 0 };
+export fn EfiMain(handle: uefi.types.Handle, system_table: *uefi.tables.SystemTable) noreturn {
+    _ = system_table.conOut().?.reset(false);
+    const on = [_]uefi.types.Char16{ '#', 0 };
+    const off = [_]uefi.types.Char16{ ' ', 0 };
     var world = World.init();
     world.buf[8][21] = true;
     world.buf[9][23] = true;
@@ -69,13 +69,13 @@ export fn EfiMain(handle: uefi.EfiHandle, system_table: *uefi.EfiSystemTable) no
     world.buf[10][25] = true;
     world.buf[10][26] = true;
     while (true) {
-        _ = system_table.con_out().?.set_cursor_position(0, 0);
+        _ = system_table.conOut().?.setCursorPosition(0, 0);
         for (world.buf) |row| {
             for (row) |c| {
                 if (c) {
-                    _ = system_table.con_out().?.output_string(&on);
+                    _ = system_table.conOut().?.outputString(&on);
                 } else {
-                    _ = system_table.con_out().?.output_string(&off);
+                    _ = system_table.conOut().?.outputString(&off);
                 }
             }
         }
