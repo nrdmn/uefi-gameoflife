@@ -58,8 +58,6 @@ const World = struct {
 
 export fn EfiMain(handle: uefi.types.Handle, system_table: *uefi.tables.SystemTable) noreturn {
     _ = system_table.conOut().?.reset(false);
-    const on = [_]uefi.types.Char16{ '#', 0 };
-    const off = [_]uefi.types.Char16{ ' ', 0 };
     var world = World.init();
     world.buf[8][21] = true;
     world.buf[9][23] = true;
@@ -73,9 +71,9 @@ export fn EfiMain(handle: uefi.types.Handle, system_table: *uefi.tables.SystemTa
         for (world.buf) |row| {
             for (row) |c| {
                 if (c) {
-                    _ = system_table.conOut().?.outputString(&on);
+                    _ = system_table.conOut().?.outputString(&[_]uefi.types.Char16{ '#', 0 });
                 } else {
-                    _ = system_table.conOut().?.outputString(&off);
+                    _ = system_table.conOut().?.outputString(&[_]uefi.types.Char16{ ' ', 0 });
                 }
             }
         }
