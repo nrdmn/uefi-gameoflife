@@ -1,4 +1,4 @@
-const uefi = @import("zig-uefi/uefi.zig");
+const uefi = @import("std").os.uefi;
 
 const World = struct {
     buf: [24][80]bool,
@@ -56,8 +56,10 @@ const World = struct {
     }
 };
 
-export fn EfiMain(handle: uefi.types.Handle, system_table: *uefi.tables.SystemTable) noreturn {
-    _ = system_table.conOut().?.reset(false);
+pub fn main() void {
+    const con_out = uefi.system_table.con_out.?;
+    const con_in = uefi.system_table.con_in.?;
+    const boot_services = uefi.system_table.boot_services.?;
     var world = World.init();
     world.buf[8][21] = true;
     world.buf[9][23] = true;
@@ -66,17 +68,20 @@ export fn EfiMain(handle: uefi.types.Handle, system_table: *uefi.tables.SystemTa
     world.buf[10][24] = true;
     world.buf[10][25] = true;
     world.buf[10][26] = true;
+    _ = con_out.reset(false);
+
     while (true) {
-        _ = system_table.conOut().?.setCursorPosition(0, 0);
+        _ = con_out.setCursorPosition(0, 0);
         for (world.buf) |row| {
             for (row) |c| {
                 if (c) {
-                    _ = system_table.conOut().?.outputString(&[_]uefi.types.Char16{ '#', 0 });
+                    _ = con_out.outputString(&[_]u16{ '#', 0 });
                 } else {
-                    _ = system_table.conOut().?.outputString(&[_]uefi.types.Char16{ ' ', 0 });
+                    _ = con_out.outputString(&[_]u16{ ' ', 0 });
                 }
             }
         }
         world.step();
+        _ = boot_services.stall(100000);
     }
 }
