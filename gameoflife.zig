@@ -59,6 +59,7 @@ const World = struct {
 pub fn main() noreturn {
     const con_out = uefi.system_table.getConOut().?;
     const stall = uefi.system_table.getBootServices().?.getStall().?;
+    const reset_system = uefi.system_table.getRuntimeServices().?.getResetSystem().?;
     var world = World.init();
     world.buf[8][21] = true;
     world.buf[9][23] = true;
@@ -68,7 +69,8 @@ pub fn main() noreturn {
     world.buf[10][25] = true;
     world.buf[10][26] = true;
     _ = con_out.reset(false);
-    while (true) {
+    var i: u16 = 0;
+    while (i < 360) {
         _ = con_out.setCursorPosition(0, 0);
         for (world.buf) |row| {
             for (row) |c| {
@@ -81,5 +83,8 @@ pub fn main() noreturn {
         }
         world.step();
         _ = stall(100000);
+        i += 1;
     }
+    reset_system(uefi.tables.ResetType.ResetShutdown, 0, 0, @intToPtr(*allowzero c_void, 0));
+    unreachable;
 }
